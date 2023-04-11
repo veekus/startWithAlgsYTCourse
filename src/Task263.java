@@ -13,8 +13,8 @@ class Task263 {
 
         int currentBolts = k1-k1*l1/100;
         int currentScrews = k2-k2*l2/100;
-        int change = (currentBolts - currentScrews) > 0 ? (currentBolts - currentScrews)*m1 : Math.abs(currentBolts - currentScrews)*m2;
-        int res = k1*l1*m1/100 + k2*l2*m2/100 + change;
+        int change = Math.min(currentBolts, currentScrews);
+        int res = k1*m1 + k2*m2 - change*m1 - change*m2;
         out.println(res);
     }
 
