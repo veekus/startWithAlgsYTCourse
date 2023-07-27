@@ -1,71 +1,76 @@
 import java.io.PrintWriter;
+import java.util.Date;
 import java.util.Scanner;
 import java.util.Stack;
 
 public class FindMinimumInWindow {
 
+    public static class Pair {
+        int first;
+        int second;
+
+        public Pair(int first, int second) {
+            this.first = first;
+            this.second = second;
+        }
+
+        public int getFirst() {
+            return first;
+        }
+
+
+        public int getSecond() {
+            return second;
+        }
+
+    }
+
     void solve(Scanner in, PrintWriter out) {
         int n = in.nextInt();
         int m = in.nextInt();
-        int head = m;
-        int headAr = 0;
-        Stack<Integer> popStack = new Stack<Integer>();
-        Stack<Integer> putStack = new Stack<Integer>();
-        Stack<Integer> putStackMins = new Stack<Integer>();
-        Stack<Integer> popStackMins = new Stack<Integer>();
-        int[] inArray = new int[n];
+        Stack<Pair> popStack = new Stack<>();
+        Stack<Pair> putStack = new Stack<>();
         int[] arrayMins = new int[n - m + 1];
 
-        for (int i = 0; i<n; i++) {
-            inArray[i] = in.nextInt();
+        for (int i = 0; i < m; i++) {
+            pushToStack(putStack, in.nextInt());
+        }
+        arrayMins[0] = findMin(putStack, popStack);
+
+        for (int i = m; i<n; i++){
+            getElement(putStack, popStack);
+            pushToStack(putStack, in.nextInt());
+            arrayMins[i-m+1] = findMin(putStack, popStack);
         }
 
-        for (int i=0 ; i<m; i++){
-            putStack.push(inArray[i]);
-            if (!putStackMins.empty() && putStackMins.peek()<putStack.peek()){
-                putStackMins.push(putStackMins.peek());
+        for (int arrayMin : arrayMins) {
+            out.println(arrayMin);
+        }
+
+    }
+
+    void pushToStack(Stack<Pair> stack, int a){
+        int min = stack.empty() ? a : Math.min(a, stack.peek().getSecond());
+        stack.push(new Pair(a, min));
+    }
+
+    void getElement(Stack<Pair> stack1, Stack<Pair> stack2){
+        if (stack2.empty()){
+            while (!stack1.empty()){
+                int el = stack1.peek().getFirst();
+                stack1.pop();
+                pushToStack(stack2, el);
             }
-            else {
-                putStackMins.push(putStack.peek());
-            }
         }
-        while (head<n) {
-            while (!putStack.empty()) {
-                popStack.push(putStack.pop());
-                putStackMins.pop();
-                if (!popStackMins.empty() && popStackMins.peek() < popStack.peek() ) {
-                    popStackMins.push(popStackMins.peek());
-                } else {
-                    popStackMins.push(popStack.peek());
-                }
-            }
+        stack2.pop();
+    }
 
-            while (!popStack.empty() && head!=n) {
-                if (!putStackMins.empty() && popStackMins.peek() > putStackMins.peek() ) {
-                    arrayMins[headAr] = putStackMins.peek();
-                } else arrayMins[headAr] = popStackMins.peek();
-                headAr++;
-                popStack.pop();
-                popStackMins.pop();
-                putStack.push(inArray[head]);
-                head++;
-                if (!putStackMins.empty() && putStackMins.peek() < putStack.peek()) {
-                    putStackMins.push(putStackMins.peek());
-                } else {
-                    putStackMins.push(putStack.peek());
-                }
-            }
-
+    int findMin(Stack<Pair> stack1, Stack<Pair> stack2){
+        if (stack1.empty() || stack2.empty()){
+            return stack1.empty() ? stack2.peek().getSecond() : stack1.peek().getSecond();
         }
-        if (!popStackMins.empty() && popStackMins.peek()<putStackMins.peek()){
-            arrayMins[arrayMins.length - 1] = popStackMins.peek();
-        }
-        else arrayMins[arrayMins.length - 1] = putStackMins.peek();
-
-        for (int i =0; i<arrayMins.length; i++){
-            out.println(arrayMins[i]);
-        }
-
+        else return Math.min(stack1.peek().getSecond(), stack2
+                .peek().getSecond());
     }
 
 
@@ -73,6 +78,7 @@ public class FindMinimumInWindow {
         try (Scanner in = new Scanner(System.in);
              PrintWriter out = new PrintWriter(System.out);) {
             solve(in, out);
+
         }
     }
 
